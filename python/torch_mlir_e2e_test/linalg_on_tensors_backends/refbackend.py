@@ -171,10 +171,11 @@ class RefBackendLinalgOnTensorsBackend(LinalgOnTensorsBackend):
           An opaque, backend specific compiled artifact object that can be
           passed to `load`.
         """
-
+        # print(type(imported_module))
         run_pipeline_with_repro_report(
             imported_module, LOWERING_PIPELINE,
             "Lowering Linalg-on-Tensors IR to LLVM with RefBackend")
+        # print(type(imported_module))
         return imported_module
 
     def load(self, module) -> RefBackendInvoker:
