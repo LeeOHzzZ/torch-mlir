@@ -3,6 +3,7 @@
 """
 
 import torch
+import torch.nn as nn
 
 import torch_mlir
 from torch_mlir.dialects.torch.importer.jit_ir import ClassAnnotator, ModuleBuilder
@@ -14,26 +15,19 @@ from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import RefBackend
 import numpy as np
 
 
-N = 4
+shape = (1024, 1024)
 
-
-# a very simple add module
-class VAdd(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
+class matmul(torch.nn.Module):
     
     def forward(self, x, y):
-        return torch.add(x, y)
+        return torch.matmul(x, y)
 
-x = torch.randn(4)
-y = torch.randn(4)
+x = torch.randn(shape, dtype=torch.float32)
+y = torch.randn(shape, dtype=torch.float32)
 
-compiled = torch_mlir.compile(VAdd(), [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
-print(compiled)
+matmul_compiled = torch_mlir.compile(matmul(),
+                                   [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
 
-asm_for_error_report = compiled.operation.get_asm(
-    large_elements_limit=10, enable_debug_info=True
-)
-print(asm_for_error_report)
-with open("test_vadd_asm.mlir", "w") as f:
-    f.write(asm_for_error_report)
+with open("linalg_matmul.mlir", "w") as fout:
+    fout.write(matmul_compiled.operation.get_asm())
+

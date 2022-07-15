@@ -36,6 +36,7 @@ def run_pipeline_with_repro_report(module,
                                    description: str):
     """Runs `pipeline` on `module`, with a nice repro report if it fails."""
     module_name = get_module_name_for_debug_dump(module)
+    print(pipeline)
     try:
         original_stderr = sys.stderr
         sys.stderr = StringIO()
