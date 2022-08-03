@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 [submodule "external/llvm-project"]
 	path = externals/llvm-project
 	url = git@github.com:LeeOHzzZ/llvm-project.git
     branch = g3dsp
->>>>>>> update mlir folder to personal private fork
