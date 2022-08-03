@@ -16,6 +16,7 @@ import numpy as np
 
 
 N, C, H, W = 2, 3, 36, 80 
+# N, C, H, W = 2, 3, 4, 4 
 layernorm = torch.nn.LayerNorm([C, H, W])
 
 input = torch.randn((N, C, H, W))
@@ -32,7 +33,7 @@ compiled_linalg = torch_mlir.compile(
 with open("linalg_layernorm.mlir", "w") as fout:
     fout.write(compiled_linalg.operation.get_asm())
 
-# print("torchversion:", compiled_torch)
+print("torchversion:", compiled_torch)
 # print("linalg_version: ", compiled_linalg)
 
 # flatten version
@@ -57,16 +58,27 @@ class LayerNorm_Linear(torch.nn.Module):
         normalizedFeature = self.layernorm(x)
         return torch.add(torch.mul(normalizedFeature, weights), bias)
 
-weights = torch.randn((CHW))
-bias = torch.randn((CHW))
+
+N, C, H, W = 4, 8, 16, 16 
+
+layernorm_flatten = torch.nn.LayerNorm([C*H*W])
+input = torch.randn((N, C*H*W))
+weights = torch.randn((C*H*W))
+bias = torch.randn((C*H*W))
 compiled_linalg = torch_mlir.compile(
-    LayerNorm_Linear((CHW)), [input, weights, bias],
+    LayerNorm_Linear((C*H*W)), [input, weights, bias],
     output_type=torch_mlir.OutputType.LINALG_ON_TENSORS
 )
-with open("linalg_layernorm_linear.mlir", "w") as fout:
+compiled_tosa = torch_mlir.compile(
+    LayerNorm_Linear((C*H*W)), [input, weights, bias],
+    output_type=torch_mlir.OutputType.TOSA
+)
+with open("linalg_layernorm_linear_4x8x16x16.mlir", "w") as fout:
     fout.write(compiled_linalg.operation.get_asm())
+with open("tosa_layernorm_linear_4x8x16x16.mlir", "w") as fout:
+    fout.write(compiled_tosa.operation.get_asm())
 
 
-test_layer = LayerNorm_Linear((N, CHW))
+test_layer = LayerNorm_Linear((N, C*H*W))
 out = test_layer(input, weights, bias)
 print(out.shape)

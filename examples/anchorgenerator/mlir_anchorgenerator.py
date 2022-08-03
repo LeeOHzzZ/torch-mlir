@@ -6,6 +6,7 @@ from typing import List, Tuple
 import torch
 from torch import nn
 
+import numpy as np
 # from detectron2.config import configurable
 # from detectron2.layers import ShapeSpec, move_device_like
 # from detectron2.structures import Boxes, RotatedBoxes
@@ -239,8 +240,8 @@ def _create_grid_offsets(
     size: List[int], stride: int, offset: float, target_device_tensor: torch.Tensor
 ):
 
-    print("GRID_OFFSETS")
-    print(size)
+    # print("GRID_OFFSETS")
+    # print(size)
     grid_height, grid_width = size
     # shifts_xo = move_device_like(
     #    torch.arange(offset * stride, grid_width * stride, step=stride, dtype=torch.float32),
@@ -331,8 +332,8 @@ class DefaultAnchorGenerator(nn.Module):
         # aspect_ratios = _broadcast_params(aspect_ratios, self.num_features, "aspect_ratios")
         self.cell_anchors = self._calculate_anchors(sizes, aspect_ratios)
 
-        print("CELLANCHORS")
-        print(self.cell_anchors)
+        # print("CELLANCHORS")
+        # print(self.cell_anchors)
         #        assert False
 
         self.offset = offset
@@ -352,7 +353,7 @@ class DefaultAnchorGenerator(nn.Module):
         #    self.generate_cell_anchors(s, a).float() for s, a in zip(sizes, aspect_ratios)
         # ]
         cell_anchors = self.generate_cell_anchors(sizes, aspect_ratios).float()
-        print(cell_anchors)
+        # print(cell_anchors)
         return cell_anchors
         # res = torch.tensor(cell_anchors)
         # res = torch.cat(cell_anchors)
@@ -606,12 +607,14 @@ class DefaultAnchorGenerator(nn.Module):
 
         offset = 0.5
         stride = 2.0
+        # offset = torch.tensor([0.5], dtype=torch.float32)
+        # stride = torch.tensor([2.0], dtype=torch.float32)
 
         # this basically accomplishes the same thing as the meshgrid
         shifts_x2 = torch.arange(
             0, grid_width * grid_height * stride, step=stride, dtype=torch.float32
         )
-        print("a.shape is ", shifts_x2.shape)
+        # print("a.shape is ", shifts_x2.shape)
         a, b = shifts_x2, stride * grid_width
         # same as doing a modulus
         shifts_x3 = a - torch.floor(a.div(b)) * b
@@ -627,9 +630,16 @@ class DefaultAnchorGenerator(nn.Module):
         shift_y = shifts_y2
 
         # same as: torch.stack((shift_x, shift_y, shift_x, shift_y), dim=1)
+        # print(shift_x.shape, type(list(shift_x.shape)))
         sx = torch.unsqueeze(shift_x, 1)
         sy = torch.unsqueeze(shift_y, 1)
+
+        # sx = shift_x.reshape(list(shift_x.shape) + [1])
+        # sy = shift_y.reshape(list(shift_y.shape) + [1])
+
         shifts = torch.cat((sx, sy, sx, sy), 1)
+
+        # print(sx.shape, sx_2.shape)
 
         """
         cell_anchors = torch.tensor([[ -22.6274,  -11.3137,   22.6274,   11.3137],

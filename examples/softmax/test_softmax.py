@@ -15,7 +15,7 @@ from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import RefBackend
 import numpy as np
 
 
-N, C, H, W = 2, 3, 36, 36
+N, C, H, W = 16, 3, 8, 8
 
 softmax = torch.nn.Softmax(1)
 input = torch.randn((N, C*H*W), dtype=torch.float32)
@@ -31,7 +31,28 @@ compiled_linalg = torch_mlir.compile(
 compiled_tosa = torch_mlir.compile(
     softmax, input, output_type=torch_mlir.OutputType.TOSA
 )
-with open("linalg_softmax.mlir", "w") as fout:
+with open("linalg_softmax_large.mlir", "w") as fout:
     fout.write(compiled_linalg.operation.get_asm())
-with open("tosa_softmax.mlir", "w") as fout:
+with open("tosa_softmax_large.mlir", "w") as fout:
+    fout.write(compiled_tosa.operation.get_asm())
+
+
+N, C, H, W = 2, 3, 4, 4
+
+softmax = torch.nn.Softmax(1)
+input = torch.randn((N, C*H*W), dtype=torch.float32)
+
+
+# print(f"jit script version of layernorm\n", torch.jit.script(layernorm))
+# print(f"\njit traced version of layernorm\n", torch.jit.trace(layernorm, input))
+
+compiled_linalg = torch_mlir.compile(
+    softmax, input, output_type=torch_mlir.OutputType.LINALG_ON_TENSORS
+)
+compiled_tosa = torch_mlir.compile(
+    softmax, input, output_type=torch_mlir.OutputType.TOSA
+)
+with open("linalg_softmax_2x3x4x4.mlir", "w") as fout:
+    fout.write(compiled_linalg.operation.get_asm())
+with open("tosa_softmax_2x3x4x4.mlir", "w") as fout:
     fout.write(compiled_tosa.operation.get_asm())

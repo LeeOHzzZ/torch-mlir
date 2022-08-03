@@ -14,60 +14,40 @@ from torch_mlir_e2e_test.linalg_on_tensors_backends.refbackend import RefBackend
 
 import numpy as np
 
-class matmul(torch.nn.Module):
+class batch_matmul(torch.nn.Module):
     
     def forward(self, x, y):
-        z = torch.matmul(x, y)
+        z = torch.bmm(x, y)
         return z
 
 
-shape = (128, 128)
+
+shape = (8, 4, 4)
 x = torch.randn(shape, dtype=torch.float32)
 y = torch.randn(shape, dtype=torch.float32)
-# z = torch.randn(shape, dtype=torch.float32)
 
-matmul_compiled = torch_mlir.compile(matmul(),
+matmul_compiled = torch_mlir.compile(batch_matmul(),
                                    [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
 
-with open("linalg_matmul_128x128.mlir", "w") as fout:
+with open("linalg_bmm_8x4x4.mlir", "w") as fout:
     fout.write(matmul_compiled.operation.get_asm())
 
-shape = (256, 256)
-x = torch.randn(shape, dtype=torch.float32)
-y = torch.randn(shape, dtype=torch.float32)
-# z = torch.randn(shape, dtype=torch.float32)
-matmul_256x256_compiled = torch_mlir.compile(matmul(),
-                                   [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
-
-with open("linalg_256x256_matmul.mlir", "w") as fout:
-    fout.write(matmul_256x256_compiled.operation.get_asm())
-
-shape = (4, 4)
+shape = (8, 64, 64)
 x = torch.randn(shape, dtype=torch.float32)
 y = torch.randn(shape, dtype=torch.float32)
 
-matmul_compiled = torch_mlir.compile(matmul(),
+matmul_compiled = torch_mlir.compile(batch_matmul(),
                                    [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
 
-with open("linalg_matmul_4x4.mlir", "w") as fout:
+with open("linalg_bmm_8x64x64.mlir", "w") as fout:
     fout.write(matmul_compiled.operation.get_asm())
 
-shape = (64, 64)
+shape = (8, 128, 128)
 x = torch.randn(shape, dtype=torch.float32)
 y = torch.randn(shape, dtype=torch.float32)
 
-matmul_compiled = torch_mlir.compile(matmul(),
+matmul_compiled = torch_mlir.compile(batch_matmul(),
                                    [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
 
-with open("linalg_matmul_64x64.mlir", "w") as fout:
-    fout.write(matmul_compiled.operation.get_asm())
-
-
-# core vectorization analysis
-x = torch.randn((1,1), dtype=torch.float32)
-y = torch.randn((1,4), dtype=torch.float32)
-
-matmul_compiled = torch_mlir.compile(
-    matmul(), [x, y], torch_mlir.OutputType.LINALG_ON_TENSORS)
-with open("linalg_matmul_vec_core.mlir", "w") as fout:
+with open("linalg_bmm_8x128x128.mlir", "w") as fout:
     fout.write(matmul_compiled.operation.get_asm())

@@ -2,6 +2,7 @@
     through the compiler pipeline
 """
 
+from matplotlib.font_manager import _Weight
 import torch
 import torch.nn as nn
 
@@ -18,6 +19,11 @@ import numpy as np
 shape = (1, 8, 32, 32)
 kernel_size = (2,2)
 stride = (2,2)
+
+class maxp(torch.nn.Module):
+    def __init__(self, kernel_sizes, stride, weights):
+        self.maxp2d = nn.MaxPool2d(kernel_sizes, stride)
+        self.maxp2d.parameters
 
 
 x = torch.randn(shape, dtype=torch.float32)
