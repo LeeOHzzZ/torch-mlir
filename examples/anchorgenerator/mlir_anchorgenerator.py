@@ -6,7 +6,10 @@ from typing import List, Tuple
 import torch
 from torch import nn
 
+<<<<<<< HEAD
 import numpy as np
+=======
+>>>>>>> 2ca47271a4149015bd74a0ee23531596a00e98df
 # from detectron2.config import configurable
 # from detectron2.layers import ShapeSpec, move_device_like
 # from detectron2.structures import Boxes, RotatedBoxes
@@ -240,8 +243,13 @@ def _create_grid_offsets(
     size: List[int], stride: int, offset: float, target_device_tensor: torch.Tensor
 ):
 
+<<<<<<< HEAD
     # print("GRID_OFFSETS")
     # print(size)
+=======
+    print("GRID_OFFSETS")
+    print(size)
+>>>>>>> 2ca47271a4149015bd74a0ee23531596a00e98df
     grid_height, grid_width = size
     # shifts_xo = move_device_like(
     #    torch.arange(offset * stride, grid_width * stride, step=stride, dtype=torch.float32),
